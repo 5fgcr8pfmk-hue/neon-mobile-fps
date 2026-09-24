@@ -5,7 +5,7 @@
 <meta name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 
-<title>Neon Mobile FPS</title>
+<title>Neon Mountain FPS</title>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
@@ -22,7 +22,7 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: #030407;
+    background: linear-gradient(#7ec7ff, #dff3ff 45%, #fff9d7 100%);
     font-family: monospace;
     touch-action: none;
 }
@@ -41,13 +41,14 @@ canvas {
     top: max(12px, env(safe-area-inset-top));
     left: max(12px, env(safe-area-inset-left));
     z-index: 5;
-    color: #00ffcc;
-    background: rgba(0, 0, 0, .65);
-    border-left: 3px solid #00ffcc;
+    color: #00ffd9;
+    background: rgba(6, 17, 20, .72);
+    border-left: 3px solid #00ffd9;
     padding: 8px 12px;
     font-size: 12px;
-    line-height: 1.5;
+    line-height: 1.6;
     pointer-events: none;
+    box-shadow: 0 0 15px rgba(0,255,217,.25);
 }
 
 #reticle {
@@ -57,11 +58,11 @@ canvas {
     left: 50%;
     width: 12px;
     height: 12px;
-    border: 2px solid #00ffcc;
+    border: 2px solid #00ffd9;
     border-radius: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
-    box-shadow: 0 0 8px #00ffcc;
+    box-shadow: 0 0 10px rgba(0,255,217,.9);
 }
 
 #start {
@@ -74,26 +75,27 @@ canvas {
     padding: 25px;
     color: white;
     text-align: center;
-    background: rgba(0, 0, 0, .92);
+    background: rgba(0, 0, 0, .78);
 }
 
 #startBox {
     width: min(430px, 100%);
     padding: 24px;
-    border: 1px solid #00ffcc;
-    box-shadow: 0 0 25px rgba(0, 255, 204, .35);
+    border: 1px solid #00ffd9;
+    box-shadow: 0 0 25px rgba(0, 255, 217, .35);
+    background: rgba(8, 16, 23, .9);
 }
 
 #start h1 {
-    color: #00ffcc;
+    color: #00ffd9;
     font-size: 22px;
 }
 
 #start button {
     margin-top: 15px;
     padding: 14px 22px;
-    color: #00110d;
-    background: #00ffcc;
+    color: #00120f;
+    background: #00ffd9;
     border: 0;
     border-radius: 6px;
     font-family: monospace;
@@ -108,9 +110,9 @@ canvas {
     bottom: max(25px, env(safe-area-inset-bottom));
     width: 135px;
     height: 135px;
-    border: 2px solid rgba(0, 255, 204, .45);
+    border: 2px solid rgba(0, 255, 217, .45);
     border-radius: 50%;
-    background: rgba(0, 255, 204, .08);
+    background: rgba(0, 255, 217, .08);
 }
 
 #stick {
@@ -120,8 +122,8 @@ canvas {
     width: 58px;
     height: 58px;
     border-radius: 50%;
-    background: rgba(0, 255, 204, .75);
-    box-shadow: 0 0 15px #00ffcc;
+    background: rgba(0, 255, 217, .75);
+    box-shadow: 0 0 15px #00ffd9;
     transform: translate(-50%, -50%);
 }
 
@@ -132,17 +134,17 @@ canvas {
     bottom: max(35px, env(safe-area-inset-bottom));
     width: 88px;
     height: 88px;
-    border: 2px solid #ff3366;
+    border: 2px solid #ff3f73;
     border-radius: 50%;
     color: white;
-    background: rgba(255, 51, 102, .35);
+    background: rgba(255, 63, 115, .38);
     font-family: monospace;
     font-weight: bold;
-    box-shadow: 0 0 18px rgba(255, 51, 102, .65);
+    box-shadow: 0 0 18px rgba(255, 63, 115, .7);
 }
 
 #fire:active {
-    background: rgba(255, 51, 102, .8);
+    background: rgba(255, 63, 115, .85);
     transform: scale(.94);
 }
 
@@ -151,17 +153,17 @@ canvas {
     right: 15px;
     bottom: 135px;
     z-index: 5;
-    color: rgba(255,255,255,.55);
+    color: rgba(255,255,255,.6);
     font-size: 10px;
     pointer-events: none;
 }
 
 @media (orientation: portrait) {
     #startBox::after {
-        content: "Pour une meilleure expérience, utilisez le mode paysage.";
+        content: "Utilisez le paysage pour une meilleure expérience.";
         display: block;
         margin-top: 18px;
-        color: #ffcc00;
+        color: #ffd166;
         font-size: 12px;
     }
 }
@@ -183,8 +185,8 @@ canvas {
 
 <div id="start">
     <div id="startBox">
-        <h1>NEON MOBILE FPS</h1>
-        <p>Jeu FPS optimisé pour Safari mobile.</p>
+        <h1>NEON MOUNTAIN FPS</h1>
+        <p>Version optimisée pour Safari mobile.</p>
         <p>
             Joystick gauche : déplacement<br>
             Glissez à droite : regarder<br>
@@ -205,37 +207,16 @@ canvas {
 <script>
 "use strict";
 
-let scene;
-let camera;
-let renderer;
-let player;
-let pitch;
-let clock;
-
+let scene, camera, renderer, player, pitch, clock;
 const enemies = [];
 const bullets = [];
 
 let score = 0;
 let started = false;
 
-const input = {
-    forward: 0,
-    side: 0
-};
-
-const aim = {
-    active: false,
-    lastX: 0,
-    lastY: 0
-};
-
-const joystick = {
-    active: false,
-    id: null,
-    centerX: 0,
-    centerY: 0,
-    radius: 47
-};
+const input = { forward: 0, side: 0 };
+const aim = { active: false, lastX: 0, lastY: 0 };
+const joystick = { active: false, id: null, centerX: 0, centerY: 0, radius: 47 };
 
 const scoreElement = document.getElementById("score");
 const positionElement = document.getElementById("position");
@@ -248,8 +229,8 @@ function init() {
     clock = new THREE.Clock();
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x020308);
-    scene.fog = new THREE.FogExp2(0x020308, 0.018);
+    scene.background = new THREE.Color(0x9ad3ff);
+    scene.fog = new THREE.Fog(0x9ad3ff, 40, 260);
 
     camera = new THREE.PerspectiveCamera(
         70,
@@ -259,11 +240,11 @@ function init() {
     );
 
     renderer = new THREE.WebGLRenderer({
-        antialias: false,
+        antialias: true,
         powerPreference: "high-performance"
     });
 
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.7));
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById("game").appendChild(renderer.domElement);
 
@@ -280,42 +261,144 @@ function init() {
 }
 
 function createLights() {
-    scene.add(new THREE.HemisphereLight(0x446688, 0x080812, 0.9));
+    scene.add(new THREE.HemisphereLight(0xeffcff, 0x1a2731, 1.2));
 
-    const light = new THREE.PointLight(0x00ffcc, 2, 80);
-    light.position.set(0, 12, 0);
-    scene.add(light);
+    const sun = new THREE.DirectionalLight(0xfff4d6, 1.6);
+    sun.position.set(45, 70, 25);
+    scene.add(sun);
+
+    const rim = new THREE.DirectionalLight(0x8fd9ff, 0.7);
+    rim.position.set(-60, 25, -30);
+    scene.add(rim);
+
+    const warm = new THREE.PointLight(0xffd27a, 0.8, 100);
+    warm.position.set(0, 12, 20);
+    scene.add(warm);
 }
 
 function createWorld() {
-    const floorGeometry = new THREE.PlaneGeometry(500, 500, 40, 40);
-    const floorMaterial = new THREE.MeshBasicMaterial({
-        color: 0x10151c,
-        wireframe: true
+    const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(520, 520, 32, 32),
+        new THREE.MeshStandardMaterial({
+            color: 0x7ea36d,
+            roughness: 1,
+            metalness: 0,
+            emissive: 0x0f190f,
+            emissiveIntensity: 0.08
+        })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -1;
+    scene.add(ground);
+
+    const path = new THREE.Mesh(
+        new THREE.PlaneGeometry(32, 220),
+        new THREE.MeshStandardMaterial({
+            color: 0x8a7c5f,
+            roughness: 1
+        })
+    );
+    path.rotation.x = -Math.PI / 2;
+    path.position.set(0, 0.1, 0);
+    scene.add(path);
+
+    const mountainGroup = new THREE.Group();
+    const mountainMat = new THREE.MeshStandardMaterial({
+        color: 0x5a6a63,
+        roughness: 1,
+        metalness: 0.08
     });
 
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2;
-    scene.add(floor);
+    for (let i = 0; i < 18; i++) {
+        const peak = new THREE.Mesh(
+            new THREE.ConeGeometry(18 + Math.random() * 22, 30 + Math.random() * 60, 8),
+            mountainMat
+        );
 
-    const pillarGeometry = new THREE.BoxGeometry(3, 18, 3);
-    const pillarMaterial = new THREE.MeshLambertMaterial({
-        color: 0x202632
+        peak.position.set(
+            -180 + (i * 22) + (Math.random() - 0.5) * 15,
+            10 + Math.random() * 18,
+            -200 + Math.random() * 180
+        );
+
+        peak.rotation.y = Math.random() * Math.PI;
+
+        const snow = new THREE.Mesh(
+            new THREE.ConeGeometry(8 + Math.random() * 10, 12 + Math.random() * 18, 6),
+            new THREE.MeshStandardMaterial({
+                color: 0xf0f5ff,
+                roughness: 0.9,
+                metalness: 0
+            })
+        );
+        snow.position.set(0, 12 + Math.random() * 18, 0);
+        peak.add(snow);
+
+        mountainGroup.add(peak);
+    }
+
+    scene.add(mountainGroup);
+
+    createDecor();
+}
+
+function createDecor() {
+    const rockGeo = new THREE.DodecahedronGeometry(2.5, 0);
+    const rockMat = new THREE.MeshStandardMaterial({
+        color: 0x7d8b82,
+        roughness: 0.95
     });
 
-    for (let i = 0; i < 22; i++) {
-        const pillar = new THREE.Mesh(
-            pillarGeometry,
-            pillarMaterial
+    for (let i = 0; i < 36; i++) {
+        const rock = new THREE.Mesh(rockGeo, rockMat);
+        rock.position.set(
+            (Math.random() - 0.5) * 260,
+            0.8 + Math.random() * 3,
+            (Math.random() - 0.5) * 260
+        );
+        rock.scale.setScalar(1 + Math.random() * 1.7);
+        scene.add(rock);
+    }
+
+    const treeGroup = new THREE.Group();
+    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x6a4d33, roughness: 1 });
+    const leafMat = new THREE.MeshStandardMaterial({ color: 0x2d7d4a, roughness: 1 });
+
+    for (let i = 0; i < 18; i++) {
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.8, 4, 5), trunkMat);
+        trunk.position.set(
+            (Math.random() - 0.5) * 220,
+            2,
+            (Math.random() - 0.5) * 220
         );
 
-        pillar.position.set(
-            (Math.random() - .5) * 220,
-            9,
-            (Math.random() - .5) * 220
-        );
+        const leaves = new THREE.Mesh(new THREE.SphereGeometry(2.5, 8, 8), leafMat);
+        leaves.position.set(0, 5.2, 0);
+        leaves.scale.set(1.1, 1.2, 1.1);
 
-        scene.add(pillar);
+        const tree = new THREE.Group();
+        tree.add(trunk);
+        tree.add(leaves);
+        treeGroup.add(tree);
+    }
+
+    scene.add(treeGroup);
+
+    const crateGeo = new THREE.BoxGeometry(3, 3, 3);
+    const crateMat = new THREE.MeshStandardMaterial({
+        color: 0x8b6f45,
+        roughness: 1
+    });
+
+    for (let i = 0; i < 10; i++) {
+        const crate = new THREE.Mesh(crateGeo, crateMat);
+        crate.position.set(
+            (Math.random() - 0.5) * 180,
+            1.5,
+            (Math.random() - 0.5) * 180
+        );
+        crate.rotation.y = Math.random() * Math.PI;
+        scene.add(crate);
     }
 }
 
@@ -325,44 +408,154 @@ function createPlayer() {
 
     player.position.set(0, 2, 25);
 
+    camera.position.set(0, 0, 0);
     pitch.add(camera);
     player.add(pitch);
     scene.add(player);
+
+    const weapon = createWeapon();
+    camera.add(weapon);
+}
+
+function createWeapon() {
+    const group = new THREE.Group();
+
+    const bodyMat = new THREE.MeshStandardMaterial({
+        color: 0x1c2125,
+        roughness: 0.6,
+        metalness: 0.8
+    });
+
+    const metalMat = new THREE.MeshStandardMaterial({
+        color: 0x9aa8b0,
+        roughness: 0.35,
+        metalness: 0.9
+    });
+
+    const gripMat = new THREE.MeshStandardMaterial({
+        color: 0x2b2b2b,
+        roughness: 0.9,
+        metalness: 0.2
+    });
+
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.38, 2.1), bodyMat);
+    body.position.set(0.8, -0.8, -1.7);
+
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 1.8, 10), metalMat);
+    barrel.rotation.z = Math.PI / 2;
+    barrel.position.set(1.45, -0.8, -2.6);
+
+    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.68, 0.22), gripMat);
+    handle.position.set(0.6, -1.15, -0.8);
+
+    const sight = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.22, 0.5), metalMat);
+    sight.position.set(0.9, -0.45, -1.2);
+
+    const stock = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.22, 0.75), bodyMat);
+    stock.position.set(0.2, -0.75, -0.9);
+
+    group.add(body, barrel, handle, sight, stock);
+    group.rotation.set(0.18, -0.36, 0.12);
+    group.position.set(0.75, -0.8, -0.7);
+
+    return group;
+}
+
+function createEnemyHumanoid() {
+    const group = new THREE.Group();
+
+    const skin = new THREE.MeshStandardMaterial({
+        color: 0xe7c39c,
+        roughness: 0.9
+    });
+
+    const cloth = new THREE.MeshStandardMaterial({
+        color: 0x7f2d3a,
+        roughness: 1
+    });
+
+    const dark = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        roughness: 0.9
+    });
+
+    const metal = new THREE.MeshStandardMaterial({
+        color: 0x9aa7b4,
+        roughness: 0.4,
+        metalness: 0.9
+    });
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.7, 12, 12), skin);
+    head.position.y = 2.4;
+    group.add(head);
+
+    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.85, 1.5, 10), cloth);
+    torso.position.y = 1.1;
+    group.add(torso);
+
+    const hip = new THREE.Mesh(new THREE.BoxGeometry(1, 0.45, 0.7), dark);
+    hip.position.y = 0.3;
+    group.add(hip);
+
+    const leftArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.18, 1.2, 4, 8), skin);
+    leftArm.position.set(-0.9, 1.1, 0);
+    leftArm.rotation.z = -0.5;
+    group.add(leftArm);
+
+    const rightArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.18, 1.2, 4, 8), skin);
+    rightArm.position.set(0.9, 1.1, 0);
+    rightArm.rotation.z = 0.5;
+    group.add(rightArm);
+
+    const leftLeg = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 1.6, 4, 8), dark);
+    leftLeg.position.set(-0.32, -0.75, 0);
+    group.add(leftLeg);
+
+    const rightLeg = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 1.6, 4, 8), dark);
+    rightLeg.position.set(0.32, -0.75, 0);
+    group.add(rightLeg);
+
+    const gun = new THREE.Group();
+    const gunBody = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.18, 1.2), metal);
+    gunBody.position.set(0.58, 0.9, 0.8);
+    gun.add(gunBody);
+
+    const gunBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.1, 8), metal);
+    gunBarrel.rotation.z = Math.PI / 2;
+    gunBarrel.position.set(0.96, 0.9, 1.4);
+    gun.add(gunBarrel);
+
+    const muzzle = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.12, 0.2), metal);
+    muzzle.position.set(1.48, 0.9, 1.4);
+    gun.add(muzzle);
+
+    group.add(gun);
+
+    group.position.y = 0;
+    return group;
 }
 
 function createEnemies() {
-    const geometry = new THREE.BoxGeometry(3, 3, 3);
-
     for (let i = 0; i < 12; i++) {
-        const material = new THREE.MeshLambertMaterial({
-            color: 0xff3366,
-            emissive: 0x660022
-        });
-
-        const enemy = new THREE.Mesh(geometry, material);
+        const enemy = createEnemyHumanoid();
         enemy.userData.enemy = true;
-
-        respawn(enemy);
+        respawnEnemy(enemy);
         scene.add(enemy);
         enemies.push(enemy);
     }
 }
 
-function respawn(enemy) {
-    let x;
-    let z;
+function respawnEnemy(enemy) {
+    let x, z;
 
     do {
-        x = (Math.random() - .5) * 210;
-        z = (Math.random() - .5) * 210;
+        x = (Math.random() - 0.5) * 210;
+        z = (Math.random() - 0.5) * 210;
     } while (Math.hypot(x - player.position.x, z - player.position.z) < 25);
 
-    enemy.position.set(x, 1.5, z);
-    enemy.rotation.set(
-        Math.random(),
-        Math.random(),
-        Math.random()
-    );
+    enemy.position.set(x, 0, z);
+    enemy.rotation.y = Math.random() * Math.PI * 2;
+    enemy.userData.bob = Math.random() * Math.PI * 2;
 }
 
 function createControls() {
@@ -372,46 +565,23 @@ function createControls() {
         resize();
     });
 
-    joystickElement.addEventListener("touchstart", joystickStart, {
-        passive: false
-    });
+    joystickElement.addEventListener("touchstart", joystickStart, { passive: false });
+    joystickElement.addEventListener("touchmove", joystickMove, { passive: false });
+    joystickElement.addEventListener("touchend", joystickEnd, { passive: false });
+    joystickElement.addEventListener("touchcancel", joystickEnd, { passive: false });
 
-    joystickElement.addEventListener("touchmove", joystickMove, {
-        passive: false
-    });
-
-    joystickElement.addEventListener("touchend", joystickEnd, {
-        passive: false
-    });
-
-    joystickElement.addEventListener("touchcancel", joystickEnd, {
-        passive: false
-    });
-
-    document.addEventListener("touchstart", aimStart, {
-        passive: false
-    });
-
-    document.addEventListener("touchmove", aimMove, {
-        passive: false
-    });
-
-    document.addEventListener("touchend", aimEnd, {
-        passive: false
-    });
+    document.addEventListener("touchstart", aimStart, { passive: false });
+    document.addEventListener("touchmove", aimMove, { passive: false });
+    document.addEventListener("touchend", aimEnd, { passive: false });
 
     fireButton.addEventListener("touchstart", (event) => {
         event.preventDefault();
-
-        if (started) {
-            shoot();
-        }
+        if (started) shoot();
     }, { passive: false });
 }
 
 function joystickStart(event) {
     event.preventDefault();
-
     const touch = event.changedTouches[0];
     const rect = joystickElement.getBoundingClientRect();
 
@@ -425,19 +595,18 @@ function joystickStart(event) {
 
 function joystickMove(event) {
     event.preventDefault();
-
     if (!joystick.active) return;
 
     for (const touch of event.changedTouches) {
         if (touch.identifier === joystick.id) {
             updateJoystick(touch.clientX, touch.clientY);
+            break;
         }
     }
 }
 
 function joystickEnd(event) {
     event.preventDefault();
-
     for (const touch of event.changedTouches) {
         if (touch.identifier === joystick.id) {
             joystick.active = false;
@@ -445,6 +614,7 @@ function joystickEnd(event) {
             input.forward = 0;
             input.side = 0;
             stickElement.style.transform = "translate(-50%, -50%)";
+            break;
         }
     }
 }
@@ -454,53 +624,46 @@ function updateJoystick(x, y) {
     let dy = y - joystick.centerY;
 
     const distance = Math.hypot(dx, dy);
-
     if (distance > joystick.radius) {
-        dx = dx / distance * joystick.radius;
-        dy = dy / distance * joystick.radius;
+        dx = (dx / distance) * joystick.radius;
+        dy = (dy / distance) * joystick.radius;
     }
 
     input.side = dx / joystick.radius;
     input.forward = -dy / joystick.radius;
 
-    stickElement.style.transform =
-        `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    stickElement.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
 }
 
 function aimStart(event) {
     if (!started) return;
-
     for (const touch of event.changedTouches) {
-        if (touch.clientX > window.innerWidth * .38) {
+        if (touch.clientX > window.innerWidth * 0.38) {
             aim.active = true;
             aim.lastX = touch.clientX;
             aim.lastY = touch.clientY;
+            break;
         }
     }
 }
 
 function aimMove(event) {
     if (!aim.active) return;
-
     event.preventDefault();
 
     for (const touch of event.changedTouches) {
-        if (touch.clientX <= window.innerWidth * .38) continue;
+        if (touch.clientX <= window.innerWidth * 0.38) continue;
 
         const dx = touch.clientX - aim.lastX;
         const dy = touch.clientY - aim.lastY;
 
-        player.rotation.y -= dx * .006;
-        pitch.rotation.x -= dy * .006;
-
-        pitch.rotation.x = THREE.MathUtils.clamp(
-            pitch.rotation.x,
-            -1.45,
-            1.45
-        );
+        player.rotation.y -= dx * 0.006;
+        pitch.rotation.x -= dy * 0.006;
+        pitch.rotation.x = THREE.MathUtils.clamp(pitch.rotation.x, -1.45, 1.45);
 
         aim.lastX = touch.clientX;
         aim.lastY = touch.clientY;
+        break;
     }
 }
 
@@ -510,18 +673,16 @@ function aimEnd() {
 
 function shoot() {
     const geometry = new THREE.SphereGeometry(.22, 6, 6);
-    const material = new THREE.MeshBasicMaterial({
-        color: 0x00ffcc
-    });
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ffd9 });
 
     const bullet = new THREE.Mesh(geometry, material);
-    const direction = new THREE.Vector3();
+    const dir = new THREE.Vector3();
 
     camera.getWorldPosition(bullet.position);
-    camera.getWorldDirection(direction);
+    camera.getWorldDirection(dir);
 
-    bullet.userData.velocity = direction.multiplyScalar(95);
-    bullet.userData.life = 2;
+    bullet.userData.velocity = dir.multiplyScalar(95);
+    bullet.userData.life = 2.2;
 
     scene.add(bullet);
     bullets.push(bullet);
@@ -532,47 +693,30 @@ function shoot() {
 function updatePlayer(delta) {
     if (!started) return;
 
-    const speed = 32;
-
+    const speed = 34;
     player.translateZ(-input.forward * speed * delta);
     player.translateX(input.side * speed * delta);
 
-    player.position.x = THREE.MathUtils.clamp(
-        player.position.x,
-        -240,
-        240
-    );
+    player.position.x = THREE.MathUtils.clamp(player.position.x, -240, 240);
+    player.position.z = THREE.MathUtils.clamp(player.position.z, -240, 240);
 
-    player.position.z = THREE.MathUtils.clamp(
-        player.position.z,
-        -240,
-        240
-    );
-
-    positionElement.textContent =
-        `${player.position.x.toFixed(0)} / ${player.position.z.toFixed(0)}`;
+    positionElement.textContent = `${player.position.x.toFixed(0)} / ${player.position.z.toFixed(0)}`;
 }
 
 function updateBullets(delta) {
     for (let i = bullets.length - 1; i >= 0; i--) {
         const bullet = bullets[i];
-
-        bullet.position.addScaledVector(
-            bullet.userData.velocity,
-            delta
-        );
-
+        bullet.position.addScaledVector(bullet.userData.velocity, delta);
         bullet.userData.life -= delta;
 
         let hit = false;
 
         for (const enemy of enemies) {
-            if (bullet.position.distanceTo(enemy.position) < 2.4) {
+            if (bullet.position.distanceTo(enemy.position) < 2.8) {
                 score += 100;
                 scoreElement.textContent = score;
                 messageElement.textContent = "CIBLE ÉLIMINÉE";
-
-                respawn(enemy);
+                respawnEnemy(enemy);
                 hit = true;
                 break;
             }
@@ -587,25 +731,21 @@ function updateBullets(delta) {
 
 function updateEnemies(delta) {
     for (const enemy of enemies) {
-        enemy.rotation.x += delta;
-        enemy.rotation.y += delta * 1.5;
+        enemy.userData.bob += delta * 2.5;
+        enemy.position.y = Math.sin(enemy.userData.bob) * 0.15;
+        enemy.rotation.y += delta * 0.9;
     }
 }
 
 function resize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-
-    renderer.setSize(
-        window.innerWidth,
-        window.innerHeight
-    );
+    renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function animate() {
     requestAnimationFrame(animate);
-
-    const delta = Math.min(clock.getDelta(), .05);
+    const delta = Math.min(clock.getDelta(), 0.05);
 
     updatePlayer(delta);
     updateBullets(delta);
